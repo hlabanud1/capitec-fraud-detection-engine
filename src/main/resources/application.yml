@@ -56,7 +56,7 @@ fraud:
 logging:
   level:
     root: INFO
-    com.capitec: DEBUG
+    za.co.capitec: DEBUG
     org.springframework.web: INFO
     org.hibernate.SQL: DEBUG
   pattern:
