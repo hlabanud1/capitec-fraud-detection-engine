@@ -1,4 +1,8 @@
 package za.co.capitec.fraud.repository;
 
-public interface TransactionRepository {
+import org.springframework.data.jpa.repository.JpaRepository;
+import za.co.capitec.fraud.domain.Transaction;
+
+public interface TransactionRepository extends JpaRepository<Transaction, Long> {
+
 }
