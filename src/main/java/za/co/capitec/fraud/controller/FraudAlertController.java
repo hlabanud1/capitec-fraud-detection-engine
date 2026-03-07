@@ -11,6 +11,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import org.springdoc.core.annotations.ParameterObject;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
@@ -100,7 +101,7 @@ public class FraudAlertController {
     public ResponseEntity<Page<FraudAlertResponse>> getAlertsByCustomerPaginated(
             @Parameter(description = "Customer ID", required = true)
             @PathVariable @NotBlank @Size(max = 255) String customerId,
-            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @ParameterObject @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
         log.info("Retrieving paginated fraud alerts for customer: {} (page: {}, size: {})",
                 PiiMaskingUtil.maskCustomerId(customerId), pageable.getPageNumber(), pageable.getPageSize());
@@ -126,7 +127,7 @@ public class FraudAlertController {
     public ResponseEntity<Page<FraudAlertResponse>> getRecentAlertsPaginated(
             @Parameter(description = "Number of hours to look back (1-720)", example = "24")
             @RequestParam(defaultValue = "24") @Min(1) @Max(720) int hours,
-            @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+            @ParameterObject @PageableDefault(size = 20, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
 
         log.info("Retrieving paginated fraud alerts from the last {} hours (page: {}, size: {})",
                 hours, pageable.getPageNumber(), pageable.getPageSize());
