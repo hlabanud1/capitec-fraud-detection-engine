@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<databaseChangeLog
+        xmlns="http://www.liquibase.org/xml/ns/dbchangelog"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xsi:schemaLocation="http://www.liquibase.org/xml/ns/dbchangelog
+    http://www.liquibase.org/xml/ns/dbchangelog/dbchangelog-4.20.xsd">
+
+    <changeSet id="002-create-fraud-alerts-table" author="dhlabanu">
+        <createTable tableName="fraud_alerts">
+            <column name="id" type="BIGINT" autoIncrement="true">
+                <constraints primaryKey="true" nullable="false"/>
+            </column>
+            <column name="transaction_id" type="BIGINT">
+                <constraints nullable="false"
+                             foreignKeyName="fk_fraud_alerts_transaction"
+                             references="transactions(id)"/>
+            </column>
+            <column name="rule_name" type="VARCHAR(255)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="severity" type="VARCHAR(50)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="reason" type="VARCHAR(1000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="risk_score" type="INTEGER">
+                <constraints nullable="false"/>
+            </column>
+            <column name="details" type="VARCHAR(2000)">
+                <constraints nullable="false"/>
+            </column>
+            <column name="created_at" type="TIMESTAMP">
+                <constraints nullable="false"/>
+            </column>
+        </createTable>
+
+        <createIndex indexName="idx_transaction_id" tableName="fraud_alerts">
+            <column name="transaction_id"/>
+        </createIndex>
+
+        <createIndex indexName="idx_severity" tableName="fraud_alerts">
+            <column name="severity"/>
+        </createIndex>
+
+        <createIndex indexName="idx_created_at" tableName="fraud_alerts">
+            <column name="created_at"/>
+        </createIndex>
+    </changeSet>
+</databaseChangeLog>
