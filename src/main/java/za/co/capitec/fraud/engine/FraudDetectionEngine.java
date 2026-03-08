@@ -62,6 +62,8 @@ public class FraudDetectionEngine {
                     alerts.add(alert);
                 }
             } catch (Exception e) {
+                // Rule failures are logged; transaction processing continues with remaining rules.
+                // No alert is created for the failed rule to avoid incomplete fraud detection results.
                 handleRuleEvaluationError(rule, transaction.getTransactionId(), e);
             }
         }
@@ -100,19 +102,16 @@ public class FraudDetectionEngine {
     }
 
     private void handleRuleEvaluationError(FraudRule rule, String transactionId, Exception e) {
-        switch (e) {
-            case IllegalArgumentException ex ->
-                    log.error("Rule {} failed for transaction {} due to validation error: {}",
-                            rule.getRuleName(), transactionId, ex.getMessage());
-            case IllegalStateException ex ->
-                    log.error("Rule {} failed for transaction {} due to validation error: {}",
-                            rule.getRuleName(), transactionId, ex.getMessage());
-            case DataAccessException dbEx ->
-                    log.error("Database error in rule {} for transaction {}: {}",
-                            rule.getRuleName(), transactionId, dbEx.getMessage());
-            default ->
-                    log.error("Unexpected error evaluating rule {} for transaction {}. This may indicate a bug.",
-                            rule.getRuleName(), transactionId, e);
+        // Handle validation errors (IllegalArgumentException or IllegalStateException)
+        if (e instanceof IllegalArgumentException || e instanceof IllegalStateException) {
+            log.error("Rule {} failed for transaction {} due to validation error: {}",
+                    rule.getRuleName(), transactionId, e.getMessage());
+        } else if (e instanceof DataAccessException) {
+            log.error("Database error in rule {} for transaction {}: {}",
+                    rule.getRuleName(), transactionId, e.getMessage());
+        } else {
+            log.error("Unexpected error evaluating rule {} for transaction {}. This may indicate a bug.",
+                    rule.getRuleName(), transactionId, e);
         }
     }
 }

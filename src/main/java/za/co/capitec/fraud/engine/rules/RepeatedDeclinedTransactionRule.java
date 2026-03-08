@@ -19,6 +19,15 @@ import java.util.List;
 /**
  * Detects patterns of repeated transaction attempts after blocks/declines,
  * which may indicate card testing or brute force attacks.
+ *
+ * <p>This rule flags when a customer already has ≥3 transactions with status
+ * {@link TransactionStatus#BLOCKED} in the last 30 minutes. These are transactions
+ * previously blocked by the fraud engine due to critical alerts, not external
+ * payment gateway declines.
+ *
+ * <p><b>Detection Strategy</b>: Multiple blocked transactions in quick succession
+ * suggest an attacker is testing stolen card details or attempting to circumvent
+ * fraud controls through repeated attempts.
  */
 @Component
 @RequiredArgsConstructor

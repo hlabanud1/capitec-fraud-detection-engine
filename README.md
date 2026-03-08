@@ -455,6 +455,12 @@ src/
 - Connection pooling
 - Efficient query design
 
+### Data Constraints
+- **Fraud Alert Details Field**: Limited to 2,000 characters (VARCHAR(2000))
+  - Stores JSON-serialized rule-specific context (amounts, thresholds, counts, etc.)
+  - Current fraud rules generate compact details (typically <500 characters)
+  - For future rules with larger payloads, consider migrating to TEXT/CLOB type
+
 ### Observability
 - Structured logging with SLF4J
 - Health check endpoints

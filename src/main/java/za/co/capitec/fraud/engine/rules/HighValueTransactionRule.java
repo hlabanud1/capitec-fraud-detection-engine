@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -74,6 +75,28 @@ public class HighValueTransactionRule implements FraudRule {
             TransactionType.CARD_PURCHASE_ONLINE
     );
 
+    // Centralized multiplier mapping for all transaction types
+    // Makes threshold configuration easier to maintain and extend
+    private static final Map<TransactionType, BigDecimal> TYPE_MULTIPLIERS = Map.ofEntries(
+            // Critical value transactions (200x)
+            Map.entry(TransactionType.RTGS_TRANSFER, CRITICAL_VALUE_MULTIPLIER),
+
+            // Instant irrevocable transactions (10x)
+            Map.entry(TransactionType.RTC_TRANSFER, INSTANT_IRREVOCABLE_MULTIPLIER),
+
+            // Pre-authorized transactions (5x)
+            Map.entry(TransactionType.DEBIT_ORDER, PRE_AUTHORIZED_MULTIPLIER),
+            Map.entry(TransactionType.RECURRING_PAYMENT, PRE_AUTHORIZED_MULTIPLIER),
+            Map.entry(TransactionType.SALARY_DEPOSIT, PRE_AUTHORIZED_MULTIPLIER),
+
+            // Critical risk transactions (0.3x)
+            Map.entry(TransactionType.INTERNATIONAL_TRANSFER, CRITICAL_RISK_MULTIPLIER),
+            Map.entry(TransactionType.CARD_CASH_ADVANCE, CRITICAL_RISK_MULTIPLIER),
+
+            // High risk transactions (0.5x)
+            Map.entry(TransactionType.CARD_PURCHASE_ONLINE, HIGH_RISK_MULTIPLIER)
+    );
+
     @Override
     public FraudRuleResult evaluate(Transaction transaction) {
         // Skip system-generated transactions (bank-initiated, not fraud)
@@ -110,20 +133,16 @@ public class HighValueTransactionRule implements FraudRule {
         return FraudRuleResult.noFraud(getRuleName());
     }
 
+    /**
+     * Calculate the effective threshold for a given transaction type.
+     * Uses a Map lookup for cleaner, more maintainable code.
+     *
+     * @param type the transaction type
+     * @return the effective threshold (base threshold × type-specific multiplier)
+     */
     private BigDecimal calculateThreshold(TransactionType type) {
-        if (CRITICAL_VALUE_TYPES.contains(type)) {
-            return highValueThreshold.multiply(CRITICAL_VALUE_MULTIPLIER);
-        } else if (INSTANT_IRREVOCABLE_TYPES.contains(type)) {
-            return highValueThreshold.multiply(INSTANT_IRREVOCABLE_MULTIPLIER);
-        } else if (PRE_AUTHORIZED_TYPES.contains(type)) {
-            return highValueThreshold.multiply(PRE_AUTHORIZED_MULTIPLIER);
-        } else if (CRITICAL_RISK_TYPES.contains(type)) {
-            return highValueThreshold.multiply(CRITICAL_RISK_MULTIPLIER);
-        } else if (HIGH_RISK_TYPES.contains(type)) {
-            return highValueThreshold.multiply(HIGH_RISK_MULTIPLIER);
-        } else {
-            return highValueThreshold.multiply(STANDARD_MULTIPLIER);
-        }
+        BigDecimal multiplier = TYPE_MULTIPLIERS.getOrDefault(type, STANDARD_MULTIPLIER);
+        return highValueThreshold.multiply(multiplier);
     }
 
     @Override
