@@ -80,39 +80,55 @@ The fraud detection engine follows a **Strategy Pattern** where:
 
 ## Quick Start with Docker
 
-### 1. Environment Setup
+### 1. Environment Setup (Optional)
 
-The project uses environment variables for configuration. A template is provided:
+The project works **out-of-the-box** with sensible defaults. No `.env` file is required.
+
+**Default credentials** (suitable for local development/testing):
+- Database: `frauddb`
+- Username: `frauduser`
+- Password: `fraudpass`
+
+**To customize configuration** (optional):
 
 ```bash
-# Copy the example environment file (first time only)
+# Copy the example environment file
 cp .env.example .env
 
-# The default values in .env work for local development
-# Edit .env if you need to change database credentials
+# Edit .env with your custom values
+nano .env
 ```
 
-**Note**: The `.env` file contains local credentials and is in `.gitignore`. The `.env.example` template is committed to git as a reference.
-
-**For Docker Compose**: Use `.env` as-is (DB_HOST=postgres)
-**For local Maven runs**: Either don't use `.env` (defaults to localhost) or change `DB_HOST=localhost` in `.env`
+**Note**:
+- The `.env` file is in `.gitignore` (not committed to git for security)
+- The `.env.example` template is committed as a reference
+- Docker Compose uses built-in defaults if no `.env` file exists
+- For production, use proper secret management (AWS Secrets Manager, Vault, etc.)
 
 ### 2. Build and Run
 
 ```bash
 # Clone the repository
-git clone <repository-url>
-cd fraud-detection-engine
+git clone https://github.com/hlabanud1/capitec-fraud-detection-engine
+cd capitec-fraud-detection-engine
 
-# Build and start all services
+# Build and start all services (no .env file needed!)
 docker-compose up --build
 ```
 
-This will:
-- Build the application image
-- Start PostgreSQL database
-- Start the application on port 8080
-- Run database migrations automatically
+**What happens during build:**
+1. ✅ Compiles Java 21 code
+2. ✅ Runs all 39 unit & integration tests
+3. ✅ Builds optimized Docker image
+4. ✅ Starts PostgreSQL 16 database
+5. ✅ Runs Liquibase database migrations
+6. ✅ Starts application on port 8080
+
+**Expected output:**
+```
+fraud-detection-db   | database system is ready to accept connections
+fraud-detection-app  | Started FraudDetectionApplication in 2.5 seconds
+```
 
 ### 3. Verify Running
 
